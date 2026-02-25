@@ -53,6 +53,26 @@ textarea {
   font-weight: 600;
 }
 
+
+.meta-banner {
+  margin-top: 12px;
+  border-radius: 8px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  font-size: 14px;
+}
+
+.meta-banner.ok {
+  background: #ecfdf3;
+  border-color: #abefc6;
+  color: #05603a;
+}
+
+.meta-banner.warn {
+  background: #fffaeb;
+  border-color: #fedf89;
+  color: #93370d;
+}
 .variants-grid {
   margin-top: 24px;
   display: grid;

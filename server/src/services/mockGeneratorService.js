@@ -7,9 +7,8 @@ function toLines(text) {
     .filter(Boolean);
 }
 
-function buildSections(originalCv, emphasis, jobPosting) {
+function buildSections(originalCv, emphasis) {
   const cvLines = toLines(originalCv);
-  const jobLines = toLines(jobPosting);
   const name = cvLines[0] || 'Candidate Name';
   const contact = cvLines[1] || 'email@example.com | +1 555-000-0000';
   const summarySource = cvLines.slice(2, 5).join(' ');
@@ -18,7 +17,7 @@ function buildSections(originalCv, emphasis, jobPosting) {
   return {
     header: { name, contact },
     summary,
-    skills: [...new Set([...jobLines.slice(0, 3), ...cvLines.slice(5, 8)])].slice(0, 6),
+    skills: [...new Set(cvLines.slice(5, 12))].slice(0, 8),
     experience: [
       {
         role: 'Relevant Experience',
@@ -73,12 +72,12 @@ function toPlainText(sections) {
 }
 
 export class MockCvGeneratorService {
-  async generateVariants({ jobPosting, originalCv }) {
+  async generateVariants({ originalCv }) {
     return {
       variants: TEMPLATE_IDS.map((templateId, index) => {
         const templateName = TEMPLATE_META[templateId].templateName;
         const emphasis = `${templateName} resume strategy`;
-        const tailoredCvSections = buildSections(originalCv, emphasis, jobPosting);
+        const tailoredCvSections = buildSections(originalCv, emphasis);
 
         return {
           variantId: `variant-${index + 1}`,
