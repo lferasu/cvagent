@@ -28,6 +28,7 @@ export default function App() {
   const [jobPosting, setJobPosting] = useState('');
   const [originalCv, setOriginalCv] = useState('');
   const [variants, setVariants] = useState([]);
+  const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -35,6 +36,7 @@ export default function App() {
     setLoading(true);
     setError('');
     setVariants([]);
+    setMeta(null);
 
     try {
       const res = await fetch(`${API_BASE}/api/generate-cvs`, {
@@ -49,6 +51,7 @@ export default function App() {
       }
 
       setVariants(data.variants || []);
+      setMeta(data.meta || null);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -78,6 +81,12 @@ export default function App() {
       </button>
 
       {error ? <div className="error">{error}</div> : null}
+      {meta ? (
+        <div className={`meta-banner ${meta.mode === 'mock' ? 'warn' : 'ok'}`}>
+          <strong>Generation mode:</strong> {meta.mode}
+          {meta.reason ? ` — ${meta.reason}` : ''}
+        </div>
+      ) : null}
 
       <section className="variants-grid">
         {variants.map((variant) => (
