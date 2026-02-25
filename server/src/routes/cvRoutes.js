@@ -3,6 +3,7 @@ import { config } from '../config.js';
 import { validateGenerateBody, validateVariantBody } from '../utils/validation.js';
 import { createInMemoryRateLimiter } from '../utils/rateLimit.js';
 import { CvGeneratorService } from '../services/openaiService.js';
+import { MockCvGeneratorService } from '../services/mockGeneratorService.js';
 import { generateDocxBuffer, generatePdfBuffer } from '../services/exportService.js';
 
 const router = express.Router();
@@ -11,7 +12,7 @@ const limiter = createInMemoryRateLimiter({
   maxRequests: config.rateLimitMaxRequests
 });
 
-const generator = config.openAiApiKey ? new CvGeneratorService(config.openAiApiKey) : null;
+const generator = config.openAiApiKey ? new CvGeneratorService(config.openAiApiKey) : new MockCvGeneratorService();
 
 router.post('/generate-cvs', limiter, async (req, res) => {
   const validationError = validateGenerateBody(req.body, config.maxInputLength);
@@ -19,9 +20,6 @@ router.post('/generate-cvs', limiter, async (req, res) => {
     return res.status(400).json({ error: validationError });
   }
 
-  if (!generator) {
-    return res.status(500).json({ error: 'OPENAI_API_KEY is not configured on the server.' });
-  }
 
   try {
     const result = await generator.generateVariants(req.body);

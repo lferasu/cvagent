@@ -23,6 +23,8 @@ npm run dev
 
 Client runs on `http://localhost:5173` and calls server on `http://localhost:3001`.
 
+If `OPENAI_API_KEY` is not set, the server now falls back to a built-in mock generator so you can still test the full UI/export flow locally.
+
 ## API
 
 - `POST /api/generate-cvs`
