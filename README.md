@@ -23,13 +23,15 @@ npm run dev
 
 Client runs on `http://localhost:5173` and calls server on `http://localhost:3001`.
 
-If `OPENAI_API_KEY` is not set, the server now falls back to a built-in mock generator so you can still test the full UI/export flow locally.
+If `OPENAI_API_KEY` is not set, the server falls back to a built-in mock generator so you can still test the full UI/export flow locally.
+
+If `OPENAI_API_KEY` is present but OpenAI generation is unavailable (for example, invalid/revoked key, quota issue, or connectivity/API problems), `/api/generate-cvs` now falls back to the mock generator instead of returning a 500.
 
 ## API
 
 - `POST /api/generate-cvs`
   - Body: `{ "jobPosting": "...", "originalCv": "..." }`
-  - Response: `{ "variants": [ ...3 variants... ] }`
+  - Response: `{ "variants": [ ...3 variants... ], "meta": { "mode": "openai|mock", "reason"?: "..." } }`
 
 - `POST /api/export/docx`
   - Body: `{ "variant": { ... } }`
