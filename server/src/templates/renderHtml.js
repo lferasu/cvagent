@@ -9,8 +9,10 @@ function escapeHtml(value = '') {
     .replaceAll("'", '&#39;');
 }
 
-function renderList(items = []) {
-  return `<ul>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`;
+function renderList(items = [], className = '') {
+  if (!items.length) return '';
+  const classAttr = className ? ` class="${className}"` : '';
+  return `<ul${classAttr}>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`;
 }
 
 function renderExperience(entries = []) {
@@ -25,17 +27,24 @@ function renderExperience(entries = []) {
     .join('');
 }
 
+function renderSkillsPills(skills = []) {
+  if (!skills.length) return '';
+  return `<div class="pill-list">${skills.map((skill) => `<span class="pill">${escapeHtml(skill)}</span>`).join('')}</div>`;
+}
+
 function section(title, body) {
   if (!body) return '';
   return `<section><h2>${title}</h2>${body}</section>`;
 }
 
-function renderSection(key, data) {
+function renderSection(key, data, templateId) {
   switch (key) {
     case 'summary':
       return section('Summary', `<p>${escapeHtml(data.summary || '')}</p>`);
-    case 'skills':
-      return section('Skills', renderList(data.skills || []));
+    case 'skills': {
+      const body = templateId === 'modern' ? renderSkillsPills(data.skills || []) : renderList(data.skills || []);
+      return section('Skills', body);
+    }
     case 'experience':
       return section('Experience', renderExperience(data.experience || []));
     case 'projects': {
@@ -62,9 +71,97 @@ function renderSection(key, data) {
 function templateStyles(templateId) {
   if (templateId === 'modern') {
     return `
-      body { font-family: Inter, Arial, sans-serif; color:#152238; }
-      h1 { color:#004f8c; letter-spacing:0.5px; }
-      h2 { color:#004f8c; border-bottom:2px solid #d8e9f7; }
+      @page { margin: 0; }
+      body {
+        margin: 0;
+        padding: 34px;
+        font-family: Inter, 'Segoe UI', Arial, sans-serif;
+        color: #17324d;
+        background: linear-gradient(180deg, #eef4ff 0%, #ffffff 20%);
+      }
+      .page {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .hero {
+        margin-bottom: 18px;
+        background: linear-gradient(120deg, #234f93, #2c7dc6);
+        color: #f7fbff;
+        border-radius: 12px;
+        padding: 18px 20px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 29px;
+        letter-spacing: 0.5px;
+      }
+      .contact {
+        margin-top: 8px;
+        font-size: 12px;
+        opacity: 0.95;
+      }
+      h2 {
+        color: #234f93;
+        margin: 16px 0 8px;
+        padding-bottom: 4px;
+        border-bottom: 2px solid #cfe0f7;
+        font-size: 12px;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+      }
+      section {
+        background: #ffffff;
+        border: 1px solid #e2eaf5;
+        border-radius: 10px;
+        padding: 10px 12px;
+        margin-bottom: 10px;
+        box-shadow: 0 3px 8px rgba(23, 50, 77, 0.06);
+      }
+      p {
+        margin: 0;
+        line-height: 1.45;
+      }
+      ul {
+        margin: 6px 0 0 18px;
+        padding: 0;
+      }
+      li {
+        margin-bottom: 3px;
+      }
+      .entry {
+        margin-bottom: 10px;
+      }
+      .entry:last-child {
+        margin-bottom: 0;
+      }
+      .entry-title {
+        font-weight: 700;
+      }
+      .entry-sub {
+        margin-top: 1px;
+        font-size: 11px;
+        color: #4d6380;
+        margin-bottom: 4px;
+      }
+      .pill-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .pill {
+        border: 1px solid #b9d0f0;
+        background: #eff5ff;
+        color: #1d4677;
+        border-radius: 999px;
+        padding: 3px 8px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      footer {
+        margin-top: 10px;
+        font-size: 10px;
+        color: #4f6788;
+      }
     `;
   }
 
@@ -88,7 +185,14 @@ export function renderCvHtml(variant) {
   const { templateId, templateName, tailoredCvSections } = variant;
   const template = TEMPLATE_META[templateId] || TEMPLATE_META.classic;
 
-  const orderedSections = template.order.map((key) => renderSection(key, tailoredCvSections)).join('');
+  const orderedSections = template.order
+    .map((key) => renderSection(key, tailoredCvSections, templateId))
+    .join('');
+
+  const hero =
+    templateId === 'modern'
+      ? `<header class="hero"><h1>${escapeHtml(tailoredCvSections.header?.name || 'Candidate')}</h1><div class="contact">${escapeHtml(tailoredCvSections.header?.contact || '')}</div></header>`
+      : `<h1>${escapeHtml(tailoredCvSections.header?.name || 'Candidate')}</h1><div class="contact">${escapeHtml(tailoredCvSections.header?.contact || '')}</div>`;
 
   return `
     <!doctype html>
@@ -110,10 +214,11 @@ export function renderCvHtml(variant) {
         </style>
       </head>
       <body>
-        <h1>${escapeHtml(tailoredCvSections.header?.name || 'Candidate')}</h1>
-        <div class="contact">${escapeHtml(tailoredCvSections.header?.contact || '')}</div>
-        ${orderedSections}
-        <footer style="margin-top:14px;font-size:10px;color:#666;">Template: ${escapeHtml(templateName)}</footer>
+        <div class="page">
+          ${hero}
+          ${orderedSections}
+          <footer>Template: ${escapeHtml(templateName)}</footer>
+        </div>
       </body>
     </html>
   `;
