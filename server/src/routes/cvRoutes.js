@@ -12,7 +12,9 @@ const limiter = createInMemoryRateLimiter({
   maxRequests: config.rateLimitMaxRequests
 });
 
-const generator = config.openAiApiKey ? new CvGeneratorService(config.openAiApiKey) : new MockCvGeneratorService();
+const openAiGenerator = config.openAiApiKey ? new CvGeneratorService(config.openAiApiKey) : null;
+const mockGenerator = new MockCvGeneratorService();
+
 
 router.post('/generate-cvs', limiter, async (req, res) => {
   const validationError = validateGenerateBody(req.body, config.maxInputLength);
@@ -22,8 +24,35 @@ router.post('/generate-cvs', limiter, async (req, res) => {
 
 
   try {
-    const result = await generator.generateVariants(req.body);
-    return res.json(result);
+    if (!openAiGenerator) {
+      const fallbackResult = await mockGenerator.generateVariants(req.body);
+      return res.json({
+        ...fallbackResult,
+        meta: {
+          mode: 'mock',
+          reason: 'OPENAI_API_KEY is not configured. Using mock generator.'
+        }
+      });
+    }
+
+    try {
+      const result = await openAiGenerator.generateVariants(req.body);
+      return res.json({
+        ...result,
+        meta: {
+          mode: 'openai'
+        }
+      });
+    } catch (error) {
+      const fallbackResult = await mockGenerator.generateVariants(req.body);
+      return res.json({
+        ...fallbackResult,
+        meta: {
+          mode: 'mock',
+          reason: 'OpenAI generation is currently unavailable. Using mock generator instead.'
+        }
+      });
+    }
   } catch (error) {
     return res.status(500).json({ error: 'Failed to generate CV variants.', details: error.message });
   }
