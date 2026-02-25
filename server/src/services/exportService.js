@@ -73,7 +73,15 @@ export async function generatePdfBuffer(variant) {
   try {
     const page = await browser.newPage();
     await page.setContent(renderCvHtml(variant), { waitUntil: 'networkidle0' });
-    return await page.pdf({ format: 'A4', printBackground: true, margin: { top: '16mm', right: '12mm', bottom: '16mm', left: '12mm' } });
+    const pdfBytes = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      margin: { top: '16mm', right: '12mm', bottom: '16mm', left: '12mm' }
+    });
+
+    // Puppeteer may return a Uint8Array depending on version/runtime.
+    // Express expects a Buffer for binary downloads.
+    return Buffer.from(pdfBytes);
   } finally {
     await browser.close();
   }
