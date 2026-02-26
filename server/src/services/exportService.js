@@ -3,12 +3,43 @@ import puppeteer from 'puppeteer';
 import { renderCvHtml } from '../templates/renderHtml.js';
 import { TEMPLATE_META } from '../templates/templateConfig.js';
 
-function sectionHeading(text) {
-  return new Paragraph({ text, heading: HeadingLevel.HEADING_2, spacing: { before: 240, after: 80 } });
+function sectionHeading(text, keepNext = true) {
+  return new Paragraph({
+    text,
+    heading: HeadingLevel.HEADING_2,
+    spacing: { before: 240, after: 80 },
+    keepNext,
+    keepLines: true
+  });
 }
 
-function bullet(text) {
-  return new Paragraph({ text, bullet: { level: 0 }, spacing: { after: 80 } });
+function bullet(text, keepNext = false) {
+  return new Paragraph({
+    text,
+    bullet: { level: 0 },
+    spacing: { after: 80 },
+    keepLines: true,
+    keepNext
+  });
+}
+
+function bodyParagraph(text, keepNext = false) {
+  return new Paragraph({
+    text,
+    spacing: { after: 80 },
+    keepLines: true,
+    keepNext
+  });
+}
+
+function entryHeading(text, keepNext = true) {
+  return new Paragraph({
+    text,
+    bold: true,
+    keepNext,
+    keepLines: true,
+    spacing: { after: 60 }
+  });
 }
 
 export async function generateDocxBuffer(variant) {
@@ -18,45 +49,68 @@ export async function generateDocxBuffer(variant) {
   const children = [
     new Paragraph({
       children: [new TextRun({ text: tailoredCvSections.header?.name || 'Candidate', bold: true, size: 32 })],
-      spacing: { after: 120 }
+      spacing: { after: 120 },
+      keepNext: true,
+      keepLines: true
     }),
-    new Paragraph({ text: tailoredCvSections.header?.contact || '', spacing: { after: 200 } })
+    new Paragraph({ text: tailoredCvSections.header?.contact || '', spacing: { after: 200 }, keepLines: true })
   ];
 
   for (const key of order) {
     if (key === 'summary') {
-      children.push(sectionHeading('Summary'), new Paragraph(tailoredCvSections.summary || ''));
+      children.push(sectionHeading('Summary'), bodyParagraph(tailoredCvSections.summary || ''));
     }
 
     if (key === 'skills') {
       children.push(sectionHeading('Skills'));
-      (tailoredCvSections.skills || []).forEach((skill) => children.push(bullet(skill)));
+      const skills = tailoredCvSections.skills || [];
+      skills.forEach((skill, index) => {
+        const keepNext = index < skills.length - 1;
+        children.push(bullet(skill, keepNext));
+      });
     }
 
     if (key === 'experience') {
       children.push(sectionHeading('Experience'));
       (tailoredCvSections.experience || []).forEach((entry) => {
-        children.push(new Paragraph({ text: `${entry.role} | ${entry.company} (${entry.dates})`, bold: true }));
-        (entry.bullets || []).forEach((item) => children.push(bullet(item)));
+        const bullets = entry.bullets || [];
+        const headingText = `${entry.role} | ${entry.company} (${entry.dates})`;
+        children.push(entryHeading(headingText, bullets.length > 0));
+        bullets.forEach((item, index) => {
+          const keepNext = index < bullets.length - 1;
+          children.push(bullet(item, keepNext));
+        });
       });
     }
 
     if (key === 'projects') {
       children.push(sectionHeading('Projects'));
       (tailoredCvSections.projects || []).forEach((project) => {
-        children.push(new Paragraph({ text: `${project.name} - ${project.context}`, bold: true }));
-        (project.bullets || []).forEach((item) => children.push(bullet(item)));
+        const bullets = project.bullets || [];
+        children.push(entryHeading(`${project.name} - ${project.context}`, bullets.length > 0));
+        bullets.forEach((item, index) => {
+          const keepNext = index < bullets.length - 1;
+          children.push(bullet(item, keepNext));
+        });
       });
     }
 
     if (key === 'education') {
       children.push(sectionHeading('Education'));
-      (tailoredCvSections.education || []).forEach((item) => children.push(bullet(item)));
+      const education = tailoredCvSections.education || [];
+      education.forEach((item, index) => {
+        const keepNext = index < education.length - 1;
+        children.push(bullet(item, keepNext));
+      });
     }
 
     if (key === 'certifications') {
       children.push(sectionHeading('Certifications'));
-      (tailoredCvSections.certifications || []).forEach((item) => children.push(bullet(item)));
+      const certs = tailoredCvSections.certifications || [];
+      certs.forEach((item, index) => {
+        const keepNext = index < certs.length - 1;
+        children.push(bullet(item, keepNext));
+      });
     }
   }
 
