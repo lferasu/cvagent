@@ -15,6 +15,16 @@ const limiter = createInMemoryRateLimiter({
 const openAiGenerator = config.openAiApiKey ? new CvGeneratorService(config.openAiApiKey) : null;
 const mockGenerator = new MockCvGeneratorService();
 
+function logError(message, meta = {}) {
+  const entry = {
+    ts: new Date().toISOString(),
+    level: 'error',
+    message,
+    ...meta
+  };
+  console.error(JSON.stringify(entry));
+}
+
 
 router.post('/generate-cvs', limiter, async (req, res) => {
   const validationError = validateGenerateBody(req.body, config.maxInputLength);
@@ -44,6 +54,12 @@ router.post('/generate-cvs', limiter, async (req, res) => {
         }
       });
     } catch (error) {
+      logError('openai.generate-cvs.failed', {
+        route: '/api/generate-cvs',
+        errorName: error?.name,
+        errorMessage: error?.message,
+        errorStack: error?.stack
+      });
       const fallbackResult = await mockGenerator.generateVariants(req.body);
       return res.json({
         ...fallbackResult,
@@ -54,6 +70,12 @@ router.post('/generate-cvs', limiter, async (req, res) => {
       });
     }
   } catch (error) {
+    logError('generate-cvs.failed', {
+      route: '/api/generate-cvs',
+      errorName: error?.name,
+      errorMessage: error?.message,
+      errorStack: error?.stack
+    });
     return res.status(500).json({ error: 'Failed to generate CV variants.', details: error.message });
   }
 });
@@ -70,6 +92,12 @@ router.post('/export/docx', async (req, res) => {
     res.setHeader('Content-Disposition', `attachment; filename="${req.body.variant.templateId}-cv.docx"`);
     return res.send(buffer);
   } catch (error) {
+    logError('export-docx.failed', {
+      route: '/api/export/docx',
+      errorName: error?.name,
+      errorMessage: error?.message,
+      errorStack: error?.stack
+    });
     return res.status(500).json({ error: 'Failed to export DOCX.', details: error.message });
   }
 });
@@ -86,6 +114,12 @@ router.post('/export/pdf', async (req, res) => {
     res.setHeader('Content-Disposition', `attachment; filename="${req.body.variant.templateId}-cv.pdf"`);
     return res.send(buffer);
   } catch (error) {
+    logError('export-pdf.failed', {
+      route: '/api/export/pdf',
+      errorName: error?.name,
+      errorMessage: error?.message,
+      errorStack: error?.stack
+    });
     return res.status(500).json({ error: 'Failed to export PDF.', details: error.message });
   }
 });

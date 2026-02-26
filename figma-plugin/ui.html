@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      body {
+        margin: 0;
+        font-family: Inter, Arial, sans-serif;
+        background: #f8fafc;
+        color: #0f172a;
+      }
+      .wrap {
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      button {
+        border: 0;
+        background: #0f766e;
+        color: #fff;
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .hint {
+        color: #475569;
+        font-size: 12px;
+        line-height: 1.4;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <strong>CV Tailor Studio</strong>
+      <div class="hint">Generate desktop + mobile frames, reusable components, and design tokens.</div>
+      <button id="generate">Generate Design</button>
+    </div>
+
+    <script>
+      document.getElementById('generate').onclick = () => {
+        parent.postMessage({ pluginMessage: { type: 'generate-design' } }, '*');
+      };
+    </script>
+  </body>
+</html>

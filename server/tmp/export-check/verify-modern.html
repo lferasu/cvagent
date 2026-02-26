@@ -1,0 +1,177 @@
+
+    <!doctype html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <style>
+          * { box-sizing: border-box; }
+          body { margin: 30px; line-height: 1.35; font-size: 12px; }
+          h1 { margin: 0 0 4px; font-size: 24px; }
+          .contact { margin-bottom: 12px; font-size: 11px; }
+          h2 { margin: 14px 0 6px; font-size: 14px; text-transform: uppercase; padding-bottom:3px; }
+          p { margin: 0; }
+          ul { margin: 6px 0 0 18px; padding: 0; }
+          .section { break-inside: avoid; page-break-inside: avoid; }
+          .section h2 { break-after: avoid; page-break-after: avoid; }
+          .section-body > p,
+          .section-body li,
+          .entry,
+          .entry-title,
+          .entry-sub {
+            break-inside: avoid;
+            page-break-inside: avoid;
+            orphans: 3;
+            widows: 3;
+          }
+          .entry { margin-bottom: 8px; }
+          .entry-title { font-weight: 700; }
+          .entry-sub { font-size: 11px; color: #444; margin-bottom: 3px; }
+          
+      @page { margin: 0; }
+      @media print {
+        .section,
+        .entry,
+        .job-block,
+        .project-block,
+        .summary-block,
+        .skills-block {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+        .section h2 {
+          break-after: avoid;
+          page-break-after: avoid;
+        }
+        p,
+        li,
+        .entry-title,
+        .entry-sub,
+        .pill {
+          break-inside: avoid;
+          page-break-inside: avoid;
+          orphans: 3;
+          widows: 3;
+        }
+      }
+      body {
+        margin: 0;
+        padding: 34px;
+        font-family: Inter, 'Segoe UI', Arial, sans-serif;
+        color: #17324d;
+        background: linear-gradient(180deg, #eef4ff 0%, #ffffff 20%);
+      }
+      .page {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      .hero {
+        margin-bottom: 18px;
+        background: linear-gradient(120deg, #234f93, #2c7dc6);
+        color: #f7fbff;
+        border-radius: 12px;
+        padding: 18px 20px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 29px;
+        letter-spacing: 0.5px;
+      }
+      .contact {
+        margin-top: 8px;
+        font-size: 12px;
+        opacity: 0.95;
+      }
+      h2 {
+        color: #234f93;
+        margin: 16px 0 8px;
+        padding-bottom: 4px;
+        border-bottom: 2px solid #cfe0f7;
+        font-size: 12px;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+      }
+      section {
+        background: #ffffff;
+        border: 1px solid #e2eaf5;
+        border-radius: 10px;
+        padding: 10px 12px;
+        margin-bottom: 10px;
+        box-shadow: 0 3px 8px rgba(23, 50, 77, 0.06);
+      }
+      p {
+        margin: 0;
+        line-height: 1.45;
+      }
+      ul {
+        margin: 6px 0 0 18px;
+        padding: 0;
+      }
+      li {
+        margin-bottom: 3px;
+      }
+      .entry {
+        margin-bottom: 10px;
+      }
+      .entry:last-child {
+        margin-bottom: 0;
+      }
+      .entry-title {
+        font-weight: 700;
+      }
+      .entry-sub {
+        margin-top: 1px;
+        font-size: 11px;
+        color: #4d6380;
+        margin-bottom: 4px;
+      }
+      .pill-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .pill {
+        border: 1px solid #b9d0f0;
+        background: #eff5ff;
+        color: #1d4677;
+        border-radius: 999px;
+        padding: 3px 8px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      footer {
+        margin-top: 10px;
+        font-size: 10px;
+        color: #4f6788;
+      }
+    
+        </style>
+      </head>
+      <body>
+        <div class="page">
+          <header class="hero"><h1>Alex Candidate</h1><div class="contact">alex@example.com | +1 555-010-1234 | Seattle, WA</div></header>
+          <section class="section summary-block"><h2>Summary</h2><div class="section-body"><p>Senior software engineer with deep experience in cloud infrastructure, distributed systems, and large scale product delivery. Built resilient services and developer platforms for enterprise environments.</p></div></section><section class="section experience-block"><h2>Experience</h2><div class="section-body">
+      <div class="entry job-block">
+        <div class="entry-title">Senior Software Engineer | Acme Cloud</div>
+        <div class="entry-sub">2021 - Present</div>
+        <ul><li><span class="li-text">Led modernization of deployment orchestration platform to improve reliability and release velocity across multiple teams.</span></li><li><span class="li-text">Implemented robust service-level objectives and observability dashboards that reduced mean time to recovery in production incidents.</span></li><li><span class="li-text">Partnered with product and design stakeholders to deliver roadmap-critical capabilities while maintaining strict quality standards.</span></li></ul>
+      </div>
+    
+      <div class="entry job-block">
+        <div class="entry-title">Software Engineer | FinServe</div>
+        <div class="entry-sub">2018 - 2021</div>
+        <ul><li><span class="li-text">Developed backend APIs and asynchronous processing pipelines for high-volume financial workloads and reporting tools.</span></li><li><span class="li-text">Improved query performance and data modeling strategies for operational data stores supporting analytics and reporting.</span></li></ul>
+      </div>
+    </div></section><section class="section projects-block"><h2>Projects</h2><div class="section-body">
+          <div class="entry project-block">
+            <div class="entry-title">Developer Platform Revamp</div>
+            <div class="entry-sub">Internal Platform</div>
+            <ul><li><span class="li-text">Created reusable service templates and continuous integration standards to improve consistency across teams.</span></li><li><span class="li-text">Drove adoption with documentation, migration guides, and direct enablement sessions for engineering groups.</span></li></ul>
+          </div>
+        </div></section><section class="section skills-block"><h2>Skills</h2><div class="section-body"><div class="pill-list"><span class="pill">TypeScript</span><span class="pill">Node.js</span><span class="pill">React</span><span class="pill">PostgreSQL</span><span class="pill">Redis</span><span class="pill">Docker</span><span class="pill">Kubernetes</span><span class="pill">Terraform</span><span class="pill">CI/CD pipelines</span><span class="pill">Observability and incident response</span></div></div></section><section class="section education-block"><h2>Education</h2><div class="section-body"><ul><li><span class="li-text">B.S. Computer Science, Example University</span></li></ul></div></section><section class="section certifications-block"><h2>Certifications</h2><div class="section-body"><ul><li><span class="li-text">AWS Certified Solutions Architect - Associate</span></li></ul></div></section>
+          <footer>Template: Modern</footer>
+        </div>
+      </body>
+    </html>
+  

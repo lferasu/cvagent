@@ -7,7 +7,7 @@ function toLines(text) {
     .filter(Boolean);
 }
 
-function buildSections(originalCv, emphasis) {
+function buildSections(originalCv, emphasis, mustIncludeKeywords = []) {
   const cvLines = toLines(originalCv);
   const name = cvLines[0] || 'Candidate Name';
   const contact = cvLines[1] || 'email@example.com | +1 555-000-0000';
@@ -17,7 +17,7 @@ function buildSections(originalCv, emphasis) {
   return {
     header: { name, contact },
     summary,
-    skills: [...new Set(cvLines.slice(5, 12))].slice(0, 8),
+    skills: [...new Set([...mustIncludeKeywords, ...cvLines.slice(5, 12)])].slice(0, 10),
     experience: [
       {
         role: 'Relevant Experience',
@@ -58,7 +58,7 @@ function toPlainText(sections) {
 
   out.push('', 'PROJECTS');
   sections.projects.forEach((project) => {
-    out.push(`${project.name} — ${project.context}`);
+    out.push(`${project.name} - ${project.context}`);
     project.bullets.forEach((bullet) => out.push(`- ${bullet}`));
   });
 
@@ -72,22 +72,24 @@ function toPlainText(sections) {
 }
 
 export class MockCvGeneratorService {
-  async generateVariants({ originalCv }) {
-    return {
-      variants: TEMPLATE_IDS.map((templateId, index) => {
-        const templateName = TEMPLATE_META[templateId].templateName;
-        const emphasis = `${templateName} resume strategy`;
-        const tailoredCvSections = buildSections(originalCv, emphasis);
+  async generateVariants({ originalCv, preferredTemplate = 'modern', mustIncludeKeywords = [] }) {
+    const templateId = TEMPLATE_IDS.includes(preferredTemplate) ? preferredTemplate : 'modern';
+    const templateName = TEMPLATE_META[templateId].templateName;
+    const emphasis = `${templateName} resume strategy`;
+    const sanitizedKeywords = [...new Set((mustIncludeKeywords || []).map((k) => String(k).trim()).filter(Boolean))].slice(0, 25);
+    const tailoredCvSections = buildSections(originalCv, emphasis, sanitizedKeywords);
 
-        return {
-          variantId: `variant-${index + 1}`,
+    return {
+      variants: [
+        {
+          variantId: 'variant-1',
           templateId,
           templateName,
-          rationale: `Generated using built-in mock mode because OPENAI_API_KEY is not configured. ${templateName} emphasizes keywords and structure for the provided posting.`,
+          rationale: `Generated using built-in mock mode because OPENAI_API_KEY is not configured. ${templateName} emphasis is applied based on your template and keyword selection.`,
           tailoredCvSections,
           plainTextCv: toPlainText(tailoredCvSections)
-        };
-      })
+        }
+      ]
     };
   }
 }

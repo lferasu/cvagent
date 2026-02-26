@@ -1,91 +1,91 @@
 import OpenAI from 'openai';
-import { TEMPLATE_IDS } from '../templates/templateConfig.js';
+import { TEMPLATE_IDS, TEMPLATE_META } from '../templates/templateConfig.js';
 
 const schema = {
-  name: 'cv_variants_response',
+  name: 'single_cv_variant_response',
   strict: true,
   schema: {
     type: 'object',
     additionalProperties: false,
     properties: {
-      variants: {
-        type: 'array',
-        minItems: 3,
-        maxItems: 3,
-        items: {
-          type: 'object',
-          additionalProperties: false,
-          properties: {
-            variantId: { type: 'string' },
-            templateId: { type: 'string', enum: TEMPLATE_IDS },
-            rationale: { type: 'string' },
-            tailoredCvSections: {
-              type: 'object',
-              additionalProperties: false,
-              properties: {
-                header: {
+      variant: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          variantId: { type: 'string' },
+          templateId: { type: 'string', enum: TEMPLATE_IDS },
+          rationale: { type: 'string' },
+          tailoredCvSections: {
+            type: 'object',
+            additionalProperties: false,
+            properties: {
+              header: {
+                type: 'object',
+                additionalProperties: false,
+                properties: {
+                  name: { type: 'string' },
+                  contact: { type: 'string' }
+                },
+                required: ['name', 'contact']
+              },
+              summary: { type: 'string' },
+              skills: { type: 'array', items: { type: 'string' } },
+              experience: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  additionalProperties: false,
+                  properties: {
+                    role: { type: 'string' },
+                    company: { type: 'string' },
+                    dates: { type: 'string' },
+                    bullets: { type: 'array', items: { type: 'string' } }
+                  },
+                  required: ['role', 'company', 'dates', 'bullets']
+                }
+              },
+              projects: {
+                type: 'array',
+                items: {
                   type: 'object',
                   additionalProperties: false,
                   properties: {
                     name: { type: 'string' },
-                    contact: { type: 'string' }
+                    context: { type: 'string' },
+                    bullets: { type: 'array', items: { type: 'string' } }
                   },
-                  required: ['name', 'contact']
-                },
-                summary: { type: 'string' },
-                skills: { type: 'array', items: { type: 'string' } },
-                experience: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    additionalProperties: false,
-                    properties: {
-                      role: { type: 'string' },
-                      company: { type: 'string' },
-                      dates: { type: 'string' },
-                      bullets: { type: 'array', items: { type: 'string' } }
-                    },
-                    required: ['role', 'company', 'dates', 'bullets']
-                  }
-                },
-                projects: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    additionalProperties: false,
-                    properties: {
-                      name: { type: 'string' },
-                      context: { type: 'string' },
-                      bullets: { type: 'array', items: { type: 'string' } }
-                    },
-                    required: ['name', 'context', 'bullets']
-                  }
-                },
-                education: { type: 'array', items: { type: 'string' } },
-                certifications: { type: 'array', items: { type: 'string' } }
+                  required: ['name', 'context', 'bullets']
+                }
               },
-              required: ['header', 'summary', 'skills', 'experience', 'projects', 'education', 'certifications']
+              education: { type: 'array', items: { type: 'string' } },
+              certifications: { type: 'array', items: { type: 'string' } }
             },
-            plainTextCv: { type: 'string' }
+            required: ['header', 'summary', 'skills', 'experience', 'projects', 'education', 'certifications']
           },
-          required: ['variantId', 'templateId', 'rationale', 'tailoredCvSections', 'plainTextCv']
-        }
+          plainTextCv: { type: 'string' }
+        },
+        required: ['variantId', 'templateId', 'rationale', 'tailoredCvSections', 'plainTextCv']
       }
     },
-    required: ['variants']
+    required: ['variant']
   }
 };
 
-function createPrompt(jobPosting, originalCv) {
+function createPrompt(jobPosting, originalCv, preferredTemplate, mustIncludeKeywords = []) {
+  const keywordLine = mustIncludeKeywords.length
+    ? `Must-include keywords (use naturally and truthfully where relevant): ${mustIncludeKeywords.join(', ')}.`
+    : 'Must-include keywords: none provided.';
+
   return [
     'You are an expert resume editor.',
-    'Generate exactly 3 variants for templates classic, modern, and ats.',
-    'Return one and only one variant for each template id.',
-    'Rank the templates against the job posting and explain fit in rationale per variant.',
+    `Generate exactly 1 CV variant for template id: ${preferredTemplate}.`,
+    `Set templateId to exactly "${preferredTemplate}" in the JSON output.`,
+    keywordLine,
+    'Try to maximize coverage of the must-include keywords in summary, skills, and experience bullets where truthful.',
     'STRICT RULES: Do not invent employers, dates, degrees, or certifications. Rephrase and reorder only from provided CV.',
     'Only use the job posting to prioritize language; never copy job posting sentences into any CV section.',
     'Do not include page numbers, labels like "About the job", or posting boilerplate in output.',
-    'Each variant should have distinct emphasis and keyword alignment while staying truthful.',
+    'Keep content truthful and concise.',
     `Job Posting:\n${jobPosting}`,
     `Original CV:\n${originalCv}`
   ].join('\n\n');
@@ -134,7 +134,7 @@ function toPlainText(sections) {
 
   lines.push('', 'PROJECTS');
   (sections.projects || []).forEach((project) => {
-    lines.push(`${project.name} — ${project.context}`);
+    lines.push(`${project.name} - ${project.context}`);
     (project.bullets || []).forEach((bullet) => lines.push(`- ${bullet}`));
   });
 
@@ -148,7 +148,7 @@ function toPlainText(sections) {
 }
 
 function cleanVariant(variant, context) {
-  const sections = variant.tailoredCvSections;
+  const sections = variant.tailoredCvSections || {};
 
   const experience = (sections.experience || []).map((entry) => ({
     ...entry,
@@ -186,34 +186,18 @@ function cleanVariant(variant, context) {
   };
 }
 
-function normalizeVariants(parsedVariants, context) {
-  const byTemplate = new Map();
-  parsedVariants.forEach((variant) => {
-    if (!byTemplate.has(variant.templateId)) {
-      byTemplate.set(variant.templateId, cleanVariant(variant, context));
-    }
-  });
-
-  const fallback = parsedVariants[0];
-  return TEMPLATE_IDS.map((templateId, index) => {
-    const variant = byTemplate.get(templateId) || cleanVariant({ ...fallback, templateId }, context);
-    return {
-      ...variant,
-      variantId: variant.variantId || `variant-${index + 1}`,
-      templateId
-    };
-  });
-}
-
 export class CvGeneratorService {
   constructor(apiKey) {
     this.client = new OpenAI({ apiKey });
   }
 
-  async generateVariants({ jobPosting, originalCv }) {
+  async generateVariants({ jobPosting, originalCv, preferredTemplate = 'modern', mustIncludeKeywords = [] }) {
+    const requestedTemplate = TEMPLATE_IDS.includes(preferredTemplate) ? preferredTemplate : 'modern';
+    const sanitizedKeywords = [...new Set((mustIncludeKeywords || []).map((k) => String(k).trim().toLowerCase()).filter(Boolean))].slice(0, 25);
+
     const response = await this.client.responses.create({
       model: 'gpt-4.1-mini',
-      input: createPrompt(jobPosting, originalCv),
+      input: createPrompt(jobPosting, originalCv, requestedTemplate, sanitizedKeywords),
       text: {
         format: {
           type: 'json_schema',
@@ -226,24 +210,22 @@ export class CvGeneratorService {
 
     const parsed = JSON.parse(response.output_text);
 
-    const templateNames = {
-      classic: 'Classic',
-      modern: 'Modern',
-      ats: 'ATS-Friendly'
-    };
-
     const context = {
       normalizedJobPosting: normalizeText(jobPosting),
       normalizedCv: normalizeText(originalCv)
     };
 
-    const variants = normalizeVariants(parsed.variants, context);
+    const cleaned = cleanVariant(parsed.variant, context);
+
+    const variant = {
+      ...cleaned,
+      variantId: cleaned.variantId || 'variant-1',
+      templateId: requestedTemplate,
+      templateName: TEMPLATE_META[requestedTemplate].templateName
+    };
 
     return {
-      variants: variants.map((variant) => ({
-        ...variant,
-        templateName: templateNames[variant.templateId]
-      }))
+      variants: [variant]
     };
   }
 }

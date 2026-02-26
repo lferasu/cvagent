@@ -12,13 +12,13 @@ function escapeHtml(value = '') {
 function renderList(items = [], className = '') {
   if (!items.length) return '';
   const classAttr = className ? ` class="${className}"` : '';
-  return `<ul${classAttr}>${items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`;
+  return `<ul${classAttr}>${items.map((item) => `<li><span class="li-text">${escapeHtml(item)}</span></li>`).join('')}</ul>`;
 }
 
 function renderExperience(entries = []) {
   return entries
     .map((item) => `
-      <div class="entry">
+      <div class="entry job-block">
         <div class="entry-title">${escapeHtml(item.role || '')} ${item.company ? `| ${escapeHtml(item.company)}` : ''}</div>
         <div class="entry-sub">${escapeHtml(item.dates || '')}</div>
         ${renderList(item.bullets || [])}
@@ -34,7 +34,18 @@ function renderSkillsPills(skills = []) {
 
 function section(title, body) {
   if (!body) return '';
-  return `<section><h2>${title}</h2>${body}</section>`;
+  const sectionKey = String(title || '').toLowerCase();
+  const mappedClass =
+    sectionKey === 'summary'
+      ? 'summary-block'
+      : sectionKey === 'skills'
+        ? 'skills-block'
+        : sectionKey === 'experience'
+          ? 'experience-block'
+          : sectionKey === 'projects'
+            ? 'projects-block'
+            : `${sectionKey.replace(/\s+/g, '-')}-block`;
+  return `<section class="section ${mappedClass}"><h2>${title}</h2><div class="section-body">${body}</div></section>`;
 }
 
 function renderSection(key, data, templateId) {
@@ -50,7 +61,7 @@ function renderSection(key, data, templateId) {
     case 'projects': {
       const projectHtml = (data.projects || [])
         .map((item) => `
-          <div class="entry">
+          <div class="entry project-block">
             <div class="entry-title">${escapeHtml(item.name || '')}</div>
             ${item.context ? `<div class="entry-sub">${escapeHtml(item.context)}</div>` : ''}
             ${renderList(item.bullets || [])}
@@ -72,6 +83,31 @@ function templateStyles(templateId) {
   if (templateId === 'modern') {
     return `
       @page { margin: 0; }
+      @media print {
+        .section,
+        .entry,
+        .job-block,
+        .project-block,
+        .summary-block,
+        .skills-block {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+        .section h2 {
+          break-after: avoid;
+          page-break-after: avoid;
+        }
+        p,
+        li,
+        .entry-title,
+        .entry-sub,
+        .pill {
+          break-inside: avoid;
+          page-break-inside: avoid;
+          orphans: 3;
+          widows: 3;
+        }
+      }
       body {
         margin: 0;
         padding: 34px;
@@ -147,6 +183,8 @@ function templateStyles(templateId) {
         display: flex;
         flex-wrap: wrap;
         gap: 6px;
+        break-inside: avoid;
+        page-break-inside: avoid;
       }
       .pill {
         border: 1px solid #b9d0f0;
@@ -167,6 +205,30 @@ function templateStyles(templateId) {
 
   if (templateId === 'ats') {
     return `
+      @media print {
+        .section,
+        .entry,
+        .job-block,
+        .project-block,
+        .summary-block,
+        .skills-block {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+        .section h2 {
+          break-after: avoid;
+          page-break-after: avoid;
+        }
+        p,
+        li,
+        .entry-title,
+        .entry-sub {
+          break-inside: avoid;
+          page-break-inside: avoid;
+          orphans: 3;
+          widows: 3;
+        }
+      }
       body { font-family: Arial, Helvetica, sans-serif; color:#111; }
       h1, h2 { color:#111; }
       section { margin-bottom:12px; }
@@ -175,6 +237,30 @@ function templateStyles(templateId) {
   }
 
   return `
+    @media print {
+      .section,
+      .entry,
+      .job-block,
+      .project-block,
+      .summary-block,
+      .skills-block {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .section h2 {
+        break-after: avoid;
+        page-break-after: avoid;
+      }
+      p,
+      li,
+      .entry-title,
+      .entry-sub {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        orphans: 3;
+        widows: 3;
+      }
+    }
     body { font-family: 'Times New Roman', Times, serif; color:#1f1f1f; }
     h1 { color:#2b2b2b; }
     h2 { color:#2b2b2b; border-bottom:1px solid #cfcfcf; }
@@ -207,6 +293,18 @@ export function renderCvHtml(variant) {
           h2 { margin: 14px 0 6px; font-size: 14px; text-transform: uppercase; padding-bottom:3px; }
           p { margin: 0; }
           ul { margin: 6px 0 0 18px; padding: 0; }
+          .section { break-inside: avoid; page-break-inside: avoid; }
+          .section h2 { break-after: avoid; page-break-after: avoid; }
+          .section-body > p,
+          .section-body li,
+          .entry,
+          .entry-title,
+          .entry-sub {
+            break-inside: avoid;
+            page-break-inside: avoid;
+            orphans: 3;
+            widows: 3;
+          }
           .entry { margin-bottom: 8px; }
           .entry-title { font-weight: 700; }
           .entry-sub { font-size: 11px; color: #444; margin-bottom: 3px; }

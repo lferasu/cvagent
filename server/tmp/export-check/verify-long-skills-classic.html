@@ -1,0 +1,80 @@
+
+    <!doctype html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <style>
+          * { box-sizing: border-box; }
+          body { margin: 30px; line-height: 1.35; font-size: 12px; }
+          h1 { margin: 0 0 4px; font-size: 24px; }
+          .contact { margin-bottom: 12px; font-size: 11px; }
+          h2 { margin: 14px 0 6px; font-size: 14px; text-transform: uppercase; padding-bottom:3px; }
+          p { margin: 0; }
+          ul { margin: 6px 0 0 18px; padding: 0; }
+          .section { break-inside: avoid; page-break-inside: avoid; }
+          .section h2 { break-after: avoid; page-break-after: avoid; }
+          .section-body > p,
+          .section-body li,
+          .entry,
+          .entry-title,
+          .entry-sub {
+            break-inside: avoid;
+            page-break-inside: avoid;
+            orphans: 3;
+            widows: 3;
+          }
+          .entry { margin-bottom: 8px; }
+          .entry-title { font-weight: 700; }
+          .entry-sub { font-size: 11px; color: #444; margin-bottom: 3px; }
+          
+    @media print {
+      .section,
+      .entry,
+      .job-block,
+      .project-block,
+      .summary-block,
+      .skills-block {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .section h2 {
+        break-after: avoid;
+        page-break-after: avoid;
+      }
+      p,
+      li,
+      .entry-title,
+      .entry-sub {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        orphans: 3;
+        widows: 3;
+      }
+    }
+    body { font-family: 'Times New Roman', Times, serif; color:#1f1f1f; }
+    h1 { color:#2b2b2b; }
+    h2 { color:#2b2b2b; border-bottom:1px solid #cfcfcf; }
+  
+        </style>
+      </head>
+      <body>
+        <div class="page">
+          <h1>Jordan StressTest</h1><div class="contact">jordan@example.com | +1 555-222-9988 | Boston, MA</div>
+          <section class="section summary-block"><h2>Summary</h2><div class="section-body"><p>Platform engineer focused on resilient backend architecture, technical leadership, and production reliability in high-change environments.</p></div></section><section class="section skills-block"><h2>Skills</h2><div class="section-body"><ul><li><span class="li-text">Designing and operating distributed microservices with strict latency budgets, end-to-end tracing, and production guardrails for safe iterative delivery across multiple dependent teams and environments.</span></li><li><span class="li-text">Building CI/CD pipelines with policy-as-code controls, progressive delivery gates, automated rollback criteria, and structured release observability to reduce deployment risk under heavy release cadence.</span></li><li><span class="li-text">Owning cloud infrastructure lifecycle with Terraform modules, cross-account security baselines, workload isolation boundaries, and repeatable disaster recovery validation for mission-critical services.</span></li><li><span class="li-text">Performance optimization of complex data access patterns across PostgreSQL and Redis, including indexing strategy, query-plan diagnostics, and throughput tuning under mixed transactional workloads.</span></li><li><span class="li-text">Driving incident response maturity with runbook quality standards, service-level objective governance, and post-incident learning loops that convert recurring operational pain into durable engineering improvements.</span></li><li><span class="li-text">Establishing scalable developer enablement systems through internal platform tooling, reusable service templates, and architecture review practices aligned with long-term maintainability and product delivery speed.</span></li></ul></div></section><section class="section experience-block"><h2>Experience</h2><div class="section-body">
+      <div class="entry job-block">
+        <div class="entry-title">Staff Platform Engineer | ScaleOps</div>
+        <div class="entry-sub">2020 - Present</div>
+        <ul><li><span class="li-text">Led cross-functional platform roadmap to improve reliability and release throughput for critical systems supporting enterprise customers.</span></li><li><span class="li-text">Built reusable service baseline templates and observability conventions adopted by multiple engineering groups.</span></li></ul>
+      </div>
+    </div></section><section class="section projects-block"><h2>Projects</h2><div class="section-body">
+          <div class="entry project-block">
+            <div class="entry-title">Reliability Uplift Program</div>
+            <div class="entry-sub">Core Platform</div>
+            <ul><li><span class="li-text">Defined reliability scorecards and instrumentation standards for teams adopting shared platform capabilities.</span></li></ul>
+          </div>
+        </div></section><section class="section education-block"><h2>Education</h2><div class="section-body"><ul><li><span class="li-text">M.S. Software Engineering, Example Tech Institute</span></li></ul></div></section><section class="section certifications-block"><h2>Certifications</h2><div class="section-body"><ul><li><span class="li-text">Certified Kubernetes Administrator (CKA)</span></li></ul></div></section>
+          <footer>Template: Classic</footer>
+        </div>
+      </body>
+    </html>
+  
